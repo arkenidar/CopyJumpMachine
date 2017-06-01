@@ -6,7 +6,7 @@ class BitPrinter: # pylint: disable=too-few-public-methods
     def __init__(self):
         self.out_sequence = []
 
-    def print(self, bit):
+    def print_bit(self, bit):
         '''Adds a bit to the output.'''
         assert bit == 0 or bit == 1
         self.out_sequence.append(bit)
@@ -74,7 +74,7 @@ def run_code(code, bit_printer, memory):
                 mem[dst] = src
             except ValueError:
                 if dst == 'out':
-                    bit_printer.print(src)
+                    bit_printer.print_bit(src)
 
         def jump(cline, instruction_pointer, labels): # pylint: disable=too-many-arguments
             '''Handles Jump instructions.'''
