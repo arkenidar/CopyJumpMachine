@@ -1,0 +1,7 @@
+# NOT gate
+
+j in zero
+m out 1
+j end
+l zero
+m out 0

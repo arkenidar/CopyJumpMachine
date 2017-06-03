@@ -36,19 +36,42 @@ def run_code(code, bit_printer, memory):
     def parse(code):
         '''Parses source code.'''
         lines = []
-        labels = {}
+        line_labels = {}
+        comment_ignore_mode = False
         for line in code.split('\n'):
+
+            # handles multi-line comments
+            # (they begin in a line and end in another line,
+            # and the in-between is commented)
+
+            if line.strip() == '#begin:':
+                comment_ignore_mode = True
+                continue
+
+            if line.strip() == '#end:':
+                comment_ignore_mode = False
+                continue
+
+            if comment_ignore_mode:
+                continue
+
+            # pre-parsing
+            line = line.split("#")[0] # skip comments (everything after a ';' character)
+            line = line.strip() # strip blank characters
+            if line == '':
+                continue # skip empty lines
+
             operands = line.split(' ')
-            if operands[0] != 'l': # exclude labels (lines with label)
+            if operands[0] != 'l': # exclude line_labels (lines with label)
                 lines.append(line)
             elif operands[0] == 'l':
-                labels[operands[1]] = len(lines)
-        labels['end'] = len(lines)
-        return lines, labels
+                line_labels[operands[1]] = len(lines)
+        line_labels['end'] = len(lines)
+        return lines, line_labels
 
-    lines, labels = parse(code)
+    lines, line_labels = parse(code)
 
-    def execute(lines, labels, bit_printer):
+    def execute(lines, line_labels, bit_printer):
         '''Runs some byte code.'''
 
         def read(src): # read from address
@@ -76,7 +99,7 @@ def run_code(code, bit_printer, memory):
                 if dst == 'out':
                     bit_printer.print_bit(src)
 
-        def jump(cline, instruction_pointer, labels): # pylint: disable=too-many-arguments
+        def jump(cline, instruction_pointer, line_labels): # pylint: disable=too-many-arguments
             '''Handles Jump instructions.'''
             if len(cline) == 2: # unconditional jump
                 new_instruction_pointer = cline[1]
@@ -103,7 +126,7 @@ def run_code(code, bit_printer, memory):
                 try:
                     instruction_pointer = int(new_instruction_pointer)
                 except ValueError:
-                    instruction_pointer = labels[new_instruction_pointer]
+                    instruction_pointer = line_labels[new_instruction_pointer]
 
             return instruction_pointer
 
@@ -115,7 +138,7 @@ def run_code(code, bit_printer, memory):
 
             if cline[0] == 'j': # parse jump
 
-                instruction_pointer = jump(cline, instruction_pointer, labels)
+                instruction_pointer = jump(cline, instruction_pointer, line_labels)
 
             elif cline[0] == 'm': # parse move
 
@@ -128,110 +151,23 @@ def run_code(code, bit_printer, memory):
             else:
                 print('current line(cline) is not a valid instruction:', cline)
 
-    execute(lines, labels, bit_printer)
+    execute(lines, line_labels, bit_printer)
 
-# Move {copy_to_memory_address} {copy_from_memory_address}
-# Jump {label_to_jump_to}
-# Jump {condition_at_memory_address} {label_to_jump_to}
-# Label {jump_destination_label}
+def run_code_from_string(code_string):
+    '''Runs program-code string.'''
+    bit_printer = BitPrinter()
+    memory = [0 for i in range(1024*8)]
+    run_code(code_string, bit_printer, memory)
 
-PROGRAM_NOT_GATE = '''j in zero
-m out 1
-j end
-l zero
-m out 0'''
-
-PROGRAM_OR_GATE = '''j in one_x
-j in out_one
-m out 0
-j end
-l one_x
-m 2 in
-m out 1
-j end
-l out_one
-m out 1'''
-
-'''
-n = 0
-while True:
-    print(n)
-    if n == 255:
-        break
+def run_code_from_argv():
+    '''Runs program from a file containg program-code
+    whose file-name is provided as CLI argument(argv).'''
+    import sys
+    if len(sys.argv) != 2:
+        print('provide a file-name argument!')
     else:
-        n += 1
-'''
-PROGRAM_INTEGER_COUNTER = '''l loop
-m out 2
-m out 3
-m out 4
-m out 5
-m out 6
-m out 7
-m out 8
-m out 9
-j 2 increment next
-j 3 increment next
-j 4 increment next
-j 5 increment next
-j 6 increment next
-j 7 increment next
-j 8 increment next
-j 9 increment next
-j end
-l increment
-j 2 0is0 0is1
-l 0is0
-m 2 1
-j loop
-l 0is1
-m 2 0
-j 3 1is0 1is1
-l 1is0
-m 3 1
-j loop
-l 1is1
-m 3 0
-j 4 2is0 2is1
-l 2is0
-m 4 1
-j loop
-l 2is1
-m 4 0
-j 5 3is0 3is1
-l 3is0
-m 5 1
-j loop
-l 3is1
-m 5 0
-j 6 4is0 4is1
-l 4is0
-m 6 1
-j loop
-l 4is1
-m 6 0
-j 7 5is0 5is1
-l 5is0
-m 7 1
-j loop
-l 5is1
-m 7 0
-j 8 6is0 6is1
-l 6is0
-m 8 1
-j loop
-l 6is1
-m 8 0
-j 9 7is0 7is1
-l 7is0
-m 9 1
-j loop
-l 7is1
-m 9 0
-j loop'''
+        file_name = sys.argv[1]
+        run_code_from_string(open(file_name).read())
 
 if __name__ == '__main__':
-
-    BIT_PRINTER = BitPrinter()
-    MEMORY = [0 for i in range(1024*8)]
-    run_code(PROGRAM_INTEGER_COUNTER, BIT_PRINTER, MEMORY)
+    run_code_from_argv()
