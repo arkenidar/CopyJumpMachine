@@ -6,20 +6,20 @@ class BitPrinter: # pylint: disable=too-few-public-methods
     def __init__(self):
         self.out_sequence = []
 
-    def print_bit(self, bit):
+    def print_bit(self, output_bit):
         '''Adds a bit to the output.'''
-        assert bit == 0 or bit == 1
-        self.out_sequence.append(bit)
 
-        print('out:', bit)
+        assert output_bit == 0 or output_bit == 1
+        self.out_sequence.append(output_bit)
+        print('bit:', output_bit)
 
         if len(self.out_sequence) == 8:
-            num = 0
+            output_byte = 0
             pos = 1
             for iter_bit in self.out_sequence:
-                num += pos * iter_bit
+                output_byte += pos * iter_bit
                 pos *= 2
-            print('n:', num)
+            print('byte:', output_byte)
             self.out_sequence = []
 
 def run_code(code, bit_printer, memory):
