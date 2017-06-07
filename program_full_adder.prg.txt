@@ -1,0 +1,57 @@
+j in full_adder_a_is_1
+# full_adder_a_is_0
+
+m 2 in #b
+m 3 in #cin
+
+# calculate a0_cout
+j 2 a0_jump_cin
+l a0_cout_b_is_0
+m out 0
+j a0_calc_s
+
+l a0_jump_cin
+j 3 a0_cout_b_is_0 next
+m out 1
+
+l a0_calc_s
+j 2 a0_s_b_is_1
+j 3 a0_s_is_0 a0_s_is_1
+l a0_s_b_is_1
+j 3 a0_s_is_1 a0_s_is_0
+l a0_s_is_0
+m out 0
+j end
+l a0_s_is_1
+m out 1
+j end
+
+l full_adder_a_is_1
+m 2 in
+m 3 in
+
+# calculate a1_cout # TODO OR
+j 2 a1_jumpb0 a1_jumpb1 #b
+l a1_jumpb0
+j 3 a1_cout0 a1_cout1 #cin
+
+l a1_jumpb1
+j 3 a1_cout1 a1_cout1 #cin
+
+l a1_cout0
+m out 0
+j a1_calc_s
+
+l a1_cout1
+m out 1
+
+l a1_calc_s
+j 2 a1_s_b_is_1
+j 3 a1_s_is_1 a1_s_is_0
+l a1_s_b_is_1
+j 3 a1_s_is_0 a1_s_is_1
+l a1_s_is_0
+m out 0
+j end
+l a1_s_is_1
+m out 1
