@@ -1,88 +1,139 @@
+# DIGIT 0 (CARRY=0)
 
-# TO-DO
-#begin:
-m 10 in
-m 11 in
-m 12 in
-m 13 in
-m 14 in
-m 15 in
-m 16 in
-m 17 in
-m out 10
-m out 11
-m out 12
-m out 13
-m out 14
-m out 15
-m out 16
-m out 17
-#end:
+j in full_adder_a_is_1__0
+# full_adder_a_is_0__0
 
-l loop
-m out 2
-m out 3
-m out 4
-m out 5
-m out 6
-m out 7
-m out 8
-m out 9
-l sum
+m 2 in # read b
+m 3 0 # read cin. cin__0=0
 
-# WIP
-#begin:
-j a0 next a0is1
-j b0 next b0is1
-j r 
-#end:
+# calculate a0_cout__0 (cout for a=0)
+# COUT = and(B, CIN)
 
-j 2 a0is0 a0is1
-l a0is0
-m 2 1
-j loop
-l a0is1
-m 2 0
-j 3 a1is0 a1is1
-l a1is0
-m 3 1
-j loop
-l a1is1
-m 3 0
-j 4 a2is0 a2is1
-l a2is0
-m 4 1
-j loop
-l a2is1
-m 4 0
-j 5 a3is0 a3is1
-l a3is0
-m 5 1
-j loop
-l a3is1
-m 5 0
-j 6 a4is0 a4is1
-l a4is0
-m 6 1
-j loop
-l a4is1
-m 6 0
-j 7 a5is0 a5is1
-l a5is0
-m 7 1
-j loop
-l a5is1
-m 7 0
-j 8 a6is0 a6is1
-l a6is0
-m 8 1
-j loop
-l a6is1
-m 8 0
-j 9 a7is0 a7is1
-l a7is0
-m 9 1
-j loop
-l a7is1
-m 9 0
-j in loop end
+j 2 a0_jump_cin__0
+l a0_cout_b_is_0__0
+m 4 0 # out carry
+j a0_calc_s__0
+
+l a0_jump_cin__0
+j 3 a0_cout_b_is_0__0 next
+m 4 1 # out carry
+
+# S = xor(B, CIN)
+l a0_calc_s__0
+j 2 a0_s_b_is_1__0
+j 3 a0_s_is_0__0 a0_s_is_1__0
+l a0_s_b_is_1__0
+j 3 a0_s_is_1__0 a0_s_is_0__0
+l a0_s_is_0__0
+m out 0 # out sum
+j full_adder_end__0
+l a0_s_is_1__0
+m out 1 # out sum
+j full_adder_end__0
+
+l full_adder_a_is_1__0
+m 2 in # read b
+m 3 0 # read cin. cin__0=0
+
+# calculate a1_cout__0 (cout for a=1)
+#COUT = or(B, CIN)
+
+j 2 a1_jumpb0__0 a1_jumpb1__0 #b
+l a1_jumpb0__0
+j 3 a1_cout0__0 a1_cout1__0 #cin
+
+l a1_jumpb1__0
+j 3 a1_cout1__0 a1_cout1__0 #cin
+
+l a1_cout0__0
+m 4 0 # out carry
+j a1_calc_s__0
+
+l a1_cout1__0
+m 4 1 # out carry
+
+#S = xnor(B, CIN)
+l a1_calc_s__0
+j 2 a1_s_b_is_1__0
+j 3 a1_s_is_1__0 a1_s_is_0__0
+l a1_s_b_is_1__0
+j 3 a1_s_is_0__0 a1_s_is_1__0
+l a1_s_is_0__0
+m out 0 # out sum
+j full_adder_end__0
+l a1_s_is_1__0
+m out 1 # out sum
+
+l full_adder_end__0
+
+#########################################
+
+# DIGIT 1 (CARRY=4)
+
+j in full_adder_a_is_1__1
+# full_adder_a_is_0__1
+
+m 2 in # read b
+m 3 4 # read cin. cin__1=4
+
+# calculate a0_cout__1 (cout for a=0)
+# COUT = and(B, CIN)
+
+j 2 a0_jump_cin__1
+l a0_cout_b_is_0__1
+m 4 0 # out carry
+j a0_calc_s__1
+
+l a0_jump_cin__1
+j 3 a0_cout_b_is_0__1 next
+m 4 1 # out carry
+
+# S = xor(B, CIN)
+l a0_calc_s__1
+j 2 a0_s_b_is_1__1
+j 3 a0_s_is_0__1 a0_s_is_1__1
+l a0_s_b_is_1__1
+j 3 a0_s_is_1__1 a0_s_is_0__1
+l a0_s_is_0__1
+m out 0 # out sum
+j full_adder_end__1
+l a0_s_is_1__1
+m out 1 # out sum
+j full_adder_end__1
+
+l full_adder_a_is_1__1
+m 2 in # read b
+m 3 4 # read cin. cin__1=4
+
+# calculate a1_cout__1 (cout for a=1)
+#COUT = or(B, CIN)
+
+j 2 a1_jumpb0__1 a1_jumpb1__1 #b
+l a1_jumpb0__1
+j 3 a1_cout0__1 a1_cout1__1 #cin
+
+l a1_jumpb1__1
+j 3 a1_cout1__1 a1_cout1__1 #cin
+
+l a1_cout0__1
+m 4 0 # out carry
+j a1_calc_s__1
+
+l a1_cout1__1
+m 4 1 # out carry
+
+#S = xnor(B, CIN)
+l a1_calc_s__1
+j 2 a1_s_b_is_1__1
+j 3 a1_s_is_1__1 a1_s_is_0__1
+l a1_s_b_is_1__1
+j 3 a1_s_is_0__1 a1_s_is_1__1
+l a1_s_is_0__1
+m out 0 # out sum
+j full_adder_end__1
+l a1_s_is_1__1
+m out 1 # out sum
+
+l full_adder_end__1
+
+m out 4 # print out carry
